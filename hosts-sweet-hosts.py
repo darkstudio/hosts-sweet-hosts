@@ -12,7 +12,7 @@ CONFIG_FILE = "config.ini"
 CONFIG_SECTION = "Settings"
 CONFIG_SECTION_PARAM = "Settings_Param"
 APPNAME = "Hosts Sweet Hosts"
-APPVERSION = "0.1"
+APPVERSION = "0.2"
 MENTION = ""
 
 class RepeatedTimer:
@@ -228,6 +228,10 @@ def main_process(url, output_widget):
         output_widget.see(tk.END)
 
 def wipe_hosts_file(output_widget):
+    # Ajout du popup de confirmation
+    if not messagebox.askyesno("Confirmation", "Etes-vous sûr de vouloir supprimer tous les hosts locaux ?"):
+        return
+    
     try:
         os_type = get_os()
         if not os_type:
@@ -261,6 +265,83 @@ def get_refresh_time(refresh_time_var):
     except ValueError:
         messagebox.showerror("Erreur", "Veuillez entrer un nombre entier positif pour le temps de rafraîchissement.")
         return None
+
+# Fonction pour créer un tooltip
+def create_tooltip(widget, text):
+    tooltip = None
+    timer_id = None
+    alpha = 0.0
+    fade_in_progress = False
+    fade_out_progress = False
+    
+    def enter(event):
+        nonlocal tooltip, timer_id
+        if timer_id:
+            widget.after_cancel(timer_id)
+        # Délai de 1.5 secondes avant d'afficher le tooltip
+        timer_id = widget.after(750, show_tooltip)
+    
+    def show_tooltip():
+        nonlocal tooltip, alpha, fade_in_progress
+        if tooltip:
+            return
+            
+        x, y, _, _ = widget.bbox("insert")
+        x += widget.winfo_rootx() + 25
+        y += widget.winfo_rooty() + 20
+        
+        # Création du tooltip
+        tooltip = tk.Toplevel(widget)
+        tooltip.wm_overrideredirect(True)
+        tooltip.wm_geometry(f"+{x}+{y}")
+        tooltip.attributes("-alpha", 0.0)  # Commence complètement transparent
+        
+        label = tk.Label(tooltip, text=text, justify='left',
+                         background="#ffffcc", relief="solid", borderwidth=1,
+                         font=("Segoe UI", 10))
+        label.pack(ipadx=5, ipady=3)
+        
+        # Démarrer l'animation de fondu
+        alpha = 0.0
+        fade_in_progress = True
+        fade_in()
+    
+    def fade_in():
+        nonlocal alpha, fade_in_progress
+        if tooltip and fade_in_progress:
+            alpha += 0.1
+            if alpha >= 1.0:
+                alpha = 1.0
+                fade_in_progress = False
+            else:
+                tooltip.attributes("-alpha", alpha)
+                widget.after(30, fade_in)  # Continuer l'animation
+            tooltip.attributes("-alpha", alpha)
+    
+    def leave(event):
+        nonlocal timer_id, fade_out_progress
+        if timer_id:
+            widget.after_cancel(timer_id)
+            timer_id = None
+        
+        if tooltip:
+            fade_out_progress = True
+            fade_out()
+    
+    def fade_out():
+        nonlocal alpha, tooltip, fade_out_progress
+        if tooltip and fade_out_progress:
+            alpha -= 0.1
+            if alpha <= 0:
+                tooltip.destroy()
+                tooltip = None
+                fade_out_progress = False
+            else:
+                tooltip.attributes("-alpha", alpha)
+                widget.after(30, fade_out)  # Continuer l'animation
+    
+    widget.bind("<Enter>", enter)
+    widget.bind("<Leave>", leave)
 
 def main():
     config = load_config()
@@ -374,12 +455,10 @@ def main():
                            activebackground="#222831", activeforeground=accent_color,
                            command=lambda: open_settings_window(root, url_var, refresh_time_var, config, update_config_labels, auto_refresh_var))
     params_btn.grid(row=0, column=1, padx=10)
+    # Ajout du tooltip pour le bouton Paramètres
+    create_tooltip(params_btn, "Vos configurations...")
 
-    quit_btn = tk.Button(btn_frame, text="Quitter", width=12, bg=btn_bg, fg=fg_color, font=("Segoe UI", 11),
-                         activebackground="#222831", activeforeground=accent_color,
-                         command=root.destroy)
-    quit_btn.grid(row=0, column=2, padx=10)
-
+    # Interversion des boutons Quitter et Wipe Hosts (colonnes 2 et 3)
     wipe_btn = tk.Button(
         btn_frame,
         text="Wipe Hosts",
@@ -392,7 +471,14 @@ def main():
         command=lambda: wipe_hosts_file(output_widget),
         state=tk.NORMAL if not timer_active.get() else tk.DISABLED
     )
-    wipe_btn.grid(row=0, column=3, padx=10)
+    wipe_btn.grid(row=0, column=2, padx=10)  # Maintenant en colonne 2 (avant en colonne 3)
+    # Ajout du tooltip pour le bouton Wipe Hosts
+    create_tooltip(wipe_btn, "Effacer les Hosts locaux")
+
+    quit_btn = tk.Button(btn_frame, text="Quitter", width=12, bg=btn_bg, fg=fg_color, font=("Segoe UI", 11),
+                         activebackground="#222831", activeforeground=accent_color,
+                         command=root.destroy)
+    quit_btn.grid(row=0, column=3, padx=10)  # Maintenant en colonne 3 (avant en colonne 2)
 
     def update_wipe_btn_state():
         if timer_active.get():
