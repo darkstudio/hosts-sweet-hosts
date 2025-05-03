@@ -12,7 +12,7 @@ Une application graphique simple pour gérer automatiquement votre fichier hosts
 - Configuration persistante
 
 ## Prérequis
-- Python 3.6 ou supérieur
+- Python 3.6 ou supérieur (ou utiliser l'executable compilé)
 - Bibliothèques requises : requests, tkinter
 - Droits administrateur (nécessaires pour modifier le fichier hosts)
 
