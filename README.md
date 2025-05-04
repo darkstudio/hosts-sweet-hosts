@@ -30,3 +30,11 @@ Une application graphique simple pour gérer automatiquement votre fichier hosts
 L'application nécessite des droits administrateur pour modifier le fichier hosts sur macOS.
 Assurez-vous de l'exécuter avec sudo ou via une application compilée avec les droits appropriés.
 
+## Hosts-Sweet-Hosts en service
+
+Si vous souhaitez utiliser ce programme en service sous windows, installez-le à l'aide de NSSM https://nssm.cc/download, c'est simple et rapide.
+
+-Executez nssm install nomdevotreservice
+
+-Suivez les instructions en pointant l'executable miniDNS.exe
+
