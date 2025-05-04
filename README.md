@@ -36,5 +36,5 @@ Si vous souhaitez utiliser ce programme en service sous windows, installez-le à
 
 -Executez nssm install nomdevotreservice
 
--Suivez les instructions en pointant l'executable miniDNS.exe
+-Suivez les instructions en pointant l'executable Hosts-Sweet-Hosts.exe
 
