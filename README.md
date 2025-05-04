@@ -25,9 +25,9 @@ Une application graphique simple pour gérer automatiquement votre fichier hosts
 ## Compatibilité
 - Windows : Entièrement compatible
 - macOS : Compatible
-(nécessite des droits administrateur)
+(nécessite des droits administrateur dans les 2 cas)
 
-L'application nécessite des droits administrateur pour modifier le fichier hosts sur macOS.
+L'application nécessite des droits administrateur pour modifier le fichier hosts.
 Assurez-vous de l'exécuter avec sudo ou via une application compilée avec les droits appropriés.
 
 ## Hosts-Sweet-Hosts en service (Windows)
